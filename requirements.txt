@@ -6,4 +6,5 @@ pydantic==1.10.22
 psycopg2-binary== 2.9.9
 python-dotenv==0.21.1
 SQLAlchemy==1.4.54 
-uvicorn==0.22.0 
+uvicorn==0.22.0
+httpx==0.23.3

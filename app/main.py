@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from app.api.v1 import api_router
+from app.api.services import service_api_router
 from app.core.database.databases import engine, async_session
 from app.core.database.models import mapper_registry
 from app.middleware import authentication, logging as loggingMiddleware
@@ -77,6 +78,7 @@ app.add_middleware(
 
 
 app.include_router(api_router, prefix='/api')
+app.include_router(service_api_router, prefix='/api')
 
 @app.get("/health_ping")
 @app.get("/ping")

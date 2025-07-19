@@ -9,7 +9,9 @@ load_dotenv()
 class Settings(BaseSettings):
     VERSION: str = "v1"
     DATABASE_URL: str
-    # SECRET_KEY: str
+    ADMIN_API_KEY: str
+    OPEN_WEATHER_API_KEY: str
+    WEATHER_API_ENDPOINT: str
 
     class Config:
         env_file = Path(__file__).resolve().parent.parent / ".env"
