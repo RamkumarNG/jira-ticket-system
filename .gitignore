@@ -1,0 +1,21 @@
+# Byte-compiled / cache files
+app/__pycache__/
+__pycache__/
+app/*.py[cod]
+
+# Environment files and virtualenv
+app/.env
+app/.venv/
+app/venv/
+app/env/
+app/fastapi-env/
+
+# OS-specific
+.DS_Store
+
+# IDEs
+.vscode/
+.idea/
+
+# Logs and temp
+*.log
