@@ -44,7 +44,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title='book_recommendation',
     openapi_url=None,
-    docs_url=None,
+    docs_url="/docs",
     redoc_url=None,
     lifespan=lifespan
 )
