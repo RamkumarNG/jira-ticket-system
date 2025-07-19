@@ -42,10 +42,10 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title='book_recommendation',
-    openapi_url=None,
+    title='Jira Ticket APIs',
+    openapi_url="/openapi.json",
     docs_url="/docs",
-    redoc_url=None,
+    redoc_url="/redoc",  
     lifespan=lifespan
 )
 
@@ -66,6 +66,7 @@ cors_headers = [
     "x-resolution-id",
     "x-cache-key"
 ]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

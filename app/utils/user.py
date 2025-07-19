@@ -20,7 +20,6 @@ async def create_default_user(db: AsyncSession, user_name: str = "admin") -> Use
     stmt = select(UserTable).where(UserTable.username == user_name)
     result = await db.execute(stmt)
     user = result.scalar_one_or_none()
-    print('---->', user)
 
     if user:
         return user
@@ -71,16 +70,19 @@ async def _get_users(
         status: Optional[str] = None,
         page: int = 1,
         size: int = 10,
+        email: Optional[str] = None,
 ):
     stmt = select(UserTable)
-
-    print(f'username:::::{username}')
 
     if username:
         stmt = stmt.where(UserTable.username.ilike(f"%{username}%"))
     
     if status:
         stmt = stmt.where(UserTable.status == status)
+    
+    if email:
+        stmt = stmt.where(UserTable.email == email)
+
 
     stmt = stmt.offset((page - 1) * size).limit(size)
 

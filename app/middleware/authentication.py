@@ -7,6 +7,12 @@ ADMIN_API_KEY = "123456789"
 class AuthenticationMiddleware(BaseHTTPMiddleware):
     
     async def dispatch(self, request:Request, call_next):
+
+        # Skip authentication for docs and openapi
+        if request.url.path in ["/docs", "/openapi.json", "/health_ping", "/ping"]:
+            response = await call_next(request)
+            return response
+        
         api_key = request.headers.get("x-api-key")
 
         if api_key != ADMIN_API_KEY:
@@ -18,6 +24,3 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
         return response
 
-
-    
-    

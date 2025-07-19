@@ -36,6 +36,11 @@ class CreateTicket(BaseModel):
     created_by: str
     created_at: datetime
 
+class TicketUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    status: Optional[TicketStatus] = None
+
 class CreateTicketResponse(ResponseStructure):
     data: CreateTicket
 

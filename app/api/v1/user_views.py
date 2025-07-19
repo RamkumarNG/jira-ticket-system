@@ -113,10 +113,11 @@ async def list_users(
     request: Request,
     db: AsyncSession = Depends(get_db),
     page: int = Query(1, ge=1),
-    size: int = Query(10, ge=1)
+    size: int = Query(10, ge=1),
+    email: str = Query(None),
 ):
     try:
-        users = await _get_users(db=db, page=page, size=size)
+        users = await _get_users(db=db, page=page, size=size, email=email)
         print(users)
         serilaizer_user = [
             User(
