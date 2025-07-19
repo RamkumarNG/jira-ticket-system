@@ -30,6 +30,7 @@ async def create_default_user(db: AsyncSession, user_name: str = "admin") -> Use
         username=user_name,
         status=UserStatus.ACTIVE,
         api_key=uuid.uuid4(),
+        email=f'{user_name}@gg.com'
     )
     db.add(new_user)
     await db.commit()

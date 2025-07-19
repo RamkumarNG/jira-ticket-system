@@ -4,7 +4,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Copy project files
-COPY ../ ./
+COPY . .
 
 # Upgrade pip and install dependencies
 RUN pip install --upgrade pip
