@@ -13,6 +13,9 @@ services:
       pip install --upgrade pip setuptools wheel
       pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port 10000
+    buildFilter:
+      paths:
+        - runtime.txt
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9
