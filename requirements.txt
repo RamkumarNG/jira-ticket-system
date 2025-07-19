@@ -3,7 +3,6 @@ asyncpg==0.28.0
 databases==0.8.0  
 fastapi==0.95.2
 psycopg2-binary== 2.9.9  
-pydantic==1.10.22
-pydantic-core==2.14.6
+pydantic==2.5.3
 SQLAlchemy==1.4.54 
 uvicorn==0.22.0 
