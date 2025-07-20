@@ -6,6 +6,8 @@ from enum import Enum
 from pydantic import BaseModel
 
 from app.schema.v1.common import ResponseStructure
+from app.schema.v1.ticket import Ticket
+from app.schema.v1.comment import Comment
 
 class UserStatus(str, Enum):
     ACTIVE = "active"
@@ -30,6 +32,10 @@ class User(BaseModel):
     email: str
     status: Optional[UserStatus] = UserStatus.ACTIVE
     created_at: Optional[datetime]
+
+    tickets_created: Optional[List[Ticket]] = []
+    tickets_assigned: Optional[List[Ticket]] = []
+    # comments: Optional[List[Comment]] = []
 
 class CreateUserResponse(ResponseStructure):
     data: User

@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 from sqlalchemy.orm import registry
-from sqlalchemy import Column, String, ForeignKey, Enum, Text, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, Enum, Text, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.asyncio import AsyncEngine
@@ -21,6 +21,12 @@ class UserStatus(str, enum.Enum):
     ACTIVE = "active"
     INACTIVE = "inactive"
 
+class TicketPriority(str, enum.Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
 @mapper_registry.mapped
 @dataclass
 class UserTable:
@@ -32,7 +38,9 @@ class UserTable:
     api_key: uuid.UUID = Column(UUID(as_uuid=True), nullable=False, default=uuid.uuid4)
     email: str = Column(String, unique=True, nullable=False, index=True)
 
-    tickets_created = relationship("TicketTable", back_populates="created_by_user")
+    tickets_created = relationship("TicketTable", back_populates="created_by_user", foreign_keys="TicketTable.created_by")
+    tickets_assigned = relationship("TicketTable", back_populates="assignee_user", foreign_keys="TicketTable.assignee_id")
+    comments = relationship("CommentTable", back_populates="user")
 
 
 @mapper_registry.mapped
@@ -54,11 +62,33 @@ class TicketTable:
     title: str = Column(String, nullable=False)
     description: str = Column(Text)
     status: TicketStatus = Column(Enum(TicketStatus), default=TicketStatus.OPEN)
+    priority: TicketPriority = Column(Enum(TicketPriority), default=TicketPriority.MEDIUM)
+    story_points: int = Column(Integer, nullable=True)
+    created_at: datetime = Column(DateTime, default=datetime.utcnow)
+    updated_at: datetime = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Foreign Keys
+    project_id: UUID = Column(UUID(as_uuid=True), ForeignKey("projects.project_id"))
+    created_by: UUID = Column(UUID(as_uuid=True), ForeignKey("users.user_id"))
+    assignee_id: UUID = Column(UUID(as_uuid=True), ForeignKey("users.user_id"), nullable=True)
+
+    # Relationships
+    project = relationship("ProjectTable", back_populates="tickets")
+    created_by_user = relationship("UserTable", back_populates="tickets_created", foreign_keys=[created_by])
+    assignee_user = relationship("UserTable", back_populates="tickets_assigned", foreign_keys=[assignee_id])
+    comments = relationship("CommentTable", back_populates="ticket", cascade="all, delete-orphan")
+
+@mapper_registry.mapped
+@dataclass
+class CommentTable:
+    __tablename__ = "comments"
+
+    comment_id: UUID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    content: str = Column(Text, nullable=False)
     created_at: datetime = Column(DateTime, default=datetime.utcnow)
 
-    project_id: str = Column(UUID(as_uuid=True), ForeignKey("projects.project_id"))
-    project = relationship("ProjectTable", back_populates="tickets")
+    ticket_id: UUID = Column(UUID(as_uuid=True), ForeignKey("tickets.ticket_id"))
+    user_id: UUID = Column(UUID(as_uuid=True), ForeignKey("users.user_id"))
 
-    created_by: str = Column(UUID(as_uuid=True), ForeignKey("users.user_id"))
-    created_by_user = relationship("UserTable", back_populates="tickets_created")
-
+    ticket = relationship("TicketTable", back_populates="comments")
+    user = relationship("UserTable", back_populates="comments")

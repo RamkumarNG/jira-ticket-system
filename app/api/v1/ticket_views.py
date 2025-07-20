@@ -15,6 +15,7 @@ from app.core.database.dependencies import get_db
 from app.utils.project import check_project_exists
 from app.utils.user import check_user_exists
 from app.utils.ticket import _create_ticket, _get_ticket_by_id, _get_tickets, _delete_ticket, _update_ticket
+from app.utils.user import _get_users
 
 router = APIRouter()
 
@@ -87,10 +88,16 @@ async def create_ticket(
     db: AsyncSession = Depends(get_db),
 ):
     try:
-        user_task = check_user_exists(user_name=ticket_data.created_by, db=db)
+        creator_task = check_user_exists(user_name=ticket_data.created_by, db=db)
         project_task = check_project_exists(project_name=ticket_data.project_name, db=db)
 
-        user, project = await asyncio.gather(user_task, project_task)
+        if ticket_data.assignee_name:
+            assignee_task = check_user_exists(user_name=ticket_data.assignee_name, db=db)
+            user, project, assignee = await asyncio.gather(creator_task, project_task, assignee_task)
+        else:
+            user, project = await asyncio.gather(creator_task, project_task)
+            assignee = None
+
 
         if not user:
             return JSONResponse(
@@ -117,7 +124,10 @@ async def create_ticket(
             description=ticket_data.description,
             project_id=project.project_id,
             user_id=user.user_id,
+            assignee_id=assignee.user_id if assignee else None,
             status=ticket_data.status,
+            story_points=ticket_data.story_points,
+            priority=ticket_data.priority,
             db=db
         )
 
@@ -132,7 +142,10 @@ async def create_ticket(
                 status=new_ticket.status,
                 project_name=ticket_data.project_name,
                 created_by=ticket_data.created_by,
-                created_at=new_ticket.created_at.isoformat()
+                created_at=new_ticket.created_at.isoformat(),
+                assignee_name=ticket_data.assignee_name,
+                story_points=ticket_data.story_points,
+                priority=ticket_data.priority,
             )
         )
 
@@ -177,8 +190,11 @@ async def get_ticket_by_id(request: Request, ticket_id: uuid.UUID, db: AsyncSess
                 description = ticket.description,
                 status = ticket.status,
                 created_at = ticket.created_at,
-                created_by = ticket.project.name,
-                project_name = ticket.created_by_user.username,
+                created_by = ticket.created_by_user.username,
+                project_name = ticket.project.name,
+                assignee_name=ticket.assignee_user.username if ticket.assignee_user else None,
+                story_points=ticket.story_points,
+                priority=ticket.priority,
             )
         )
 
@@ -252,12 +268,17 @@ async def update_ticket(
     db: AsyncSession = Depends(get_db),
 ):
     try:
+        assignee = await _get_users(username=update_data.assigne_name) if update_data.assigne_name else None
+
         updated_ticket = await _update_ticket(
             ticket_id,
             db,
             title=update_data.title,
             description=update_data.description,
             status=update_data.status,
+            assigne_id=assignee.user_id if assignee else None,
+            priority=update_data.priority,
+            story_points=update_data.story_points,
         )
 
         response = TicketGetResponse(

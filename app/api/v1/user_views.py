@@ -12,7 +12,9 @@ from app.core.database.models import UserTable, UserStatus
 from app.schema.v1.common import RequestStatus
 from app.core.database.dependencies import get_db
 from app.schema.v1.user import UserCreateRequest, UserUpdateRequest, ListUserResponse, UserGetResponse, CreateUserResponse, User
-from app.utils.user import _create_user, _get_user_by_id, _get_users, _delete_user
+from app.utils.user import _create_user, _get_user_by_id, _get_users, _delete_user, serialize_user
+from app.utils.ticket import serialize_ticket
+from app.utils.comment import serialize_comment
 
 router = APIRouter()
 
@@ -61,26 +63,43 @@ async def create_user(
             }
         )
 
-# Get a user by ID
 @router.get("/{user_id}", response_model=UserGetResponse)
 async def get_user_by_id(
     request: Request,
     user_id: uuid.UUID,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    include_created: bool = Query(False),
+    include_assigned: bool = Query(False),
 ):
     try:
-        user = await _get_user_by_id(user_id=user_id, db=db)
+        user = await _get_user_by_id(user_id=user_id, db=db, include_assigned=include_assigned, include_created=include_created)
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
         
-        serializer_user = User(**asdict(user))
-        
+        user_data = {
+            "user_id": str(user.user_id),
+            "username": user.username,
+            "email": user.email,
+            "status": user.status if user.status else None,
+        }
+
+        include_map = {
+            "tickets_created": include_created,
+            "tickets_assigned": include_assigned,
+        }
+
+        for key, include in include_map.items():
+            if include:
+                user_data[key] = [serialize_ticket(t) for t in getattr(user, key)]
+
+        print(f'user_data::::{user_data}')
         response = UserGetResponse(
             request_id=request.state.id,
             status=RequestStatus.success,
             message="User details fetched successfully",
-            data=serializer_user
+            data=user_data
         )
+
         return JSONResponse(
             jsonable_encoder(response),
             status_code=status.HTTP_200_OK
@@ -107,7 +126,6 @@ async def get_user_by_id(
             }
         )
 
-# Get all users
 @router.get("")
 async def list_users(
     request: Request,
