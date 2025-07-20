@@ -10,5 +10,12 @@ COPY . .
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-# Start your FastAPI app with uvicorn
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "10000"]
+# Make start.sh executable
+RUN chmod +x app/start_server.sh
+
+# Set environment variables if needed
+ENV PYTHONUNBUFFERED=1
+
+# Start with the script
+CMD ["./app/start_server.sh"]
+
