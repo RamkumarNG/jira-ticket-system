@@ -7,7 +7,6 @@ echo "=== Files in current directory ==="
 ls -l app/alembic.ini
 
 echo "=== Running Alembic migrations ==="
-# python -m alembic -c app/alembic.ini upgrade head
 cd /app/app
 python -m alembic -c alembic.ini upgrade head
 
