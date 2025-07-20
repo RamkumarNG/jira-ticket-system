@@ -2,6 +2,10 @@
 
 set -e
 
+echo "=== Current working directory: $(pwd) ==="
+echo "=== Files in current directory ==="
+ls -l
+
 echo "=== Running Alembic migrations ==="
 # alembic -c app/alembic.ini upgrade head
 (cd /app/ && alembic upgrade head)
