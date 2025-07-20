@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     ADMIN_API_KEY: str
     OPEN_WEATHER_API_KEY: str
     WEATHER_API_ENDPOINT: str
+    SYNC_DB_URL: str
 
     class Config:
         env_file = Path(__file__).resolve().parent.parent / ".env"
