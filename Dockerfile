@@ -15,6 +15,7 @@ RUN chmod +x app/start_server.sh
 
 # Set environment variables if needed
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app
 
 # Start with the script
 CMD ["./app/start_server.sh"]
