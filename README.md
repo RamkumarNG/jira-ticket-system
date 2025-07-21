@@ -9,7 +9,7 @@ A modern, async, and production-ready ticket management system inspired by Jira,
 - **Async FastAPI** backend for high performance
 - **PostgreSQL** with async SQLAlchemy ORM
 - **User, Ticket, Project, and Comment** APIs
-- **JWT/API Key Authentication** middleware
+- **API Key Authentication** middleware
 - **Robust Alembic migrations**
 - **Pydantic** models for type-safe validation
 - **Modular, scalable architecture**
